@@ -35,6 +35,11 @@
       margin-top: 1em;
       padding: 0.5em 1em;
       font-size: 1em;
+      cursor: pointer;
+    }
+    #buttons {
+      display: flex;
+      gap: 1em;
     }
   </style>
 </head>
@@ -47,7 +52,10 @@
   <label for="char">⬛⬜ に使う文字（2文字）：</label>
   <input type="text" id="char" value="⬛⬜" maxlength="2">
 
-  <button onclick="generateQR()">✅ QR生成！</button>
+  <div id="buttons">
+    <button onclick="generateQR()"></button>
+    <button onclick="exportTXT()">💾</button>
+  </div>
 
   <label for="output">📄 TextQR 出力（読み取り可能）：</label>
   <textarea id="output" readonly></textarea>
@@ -74,6 +82,22 @@
         result += "\n";
       }
       document.getElementById("output").value = result;
+    }
+
+    function exportTXT() {
+      const content = document.getElementById("output").value;
+      if (!content.trim()) {
+        alert("まずはQRを生成してね！");
+        return;
+      }
+      const blob = new Blob([content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const filename = confirm("ファイル名を入力してね！")
+      a.href = url;
+      a.download = filename + ".txt";
+      a.click();
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>
