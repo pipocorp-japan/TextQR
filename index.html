@@ -75,17 +75,17 @@ function generateQR() {
   
   const [blackChar, whiteChar] = chars;
 
-  // QRコードオブジェクトを初期化
-  // ここでバージョン0、誤り訂正レベルL（低）を設定
+  // Pre-encode the text to UTF-8
+  // This is the crucial part for Japanese characters
+  const utf8Bytes = new TextEncoder().encode(text);
+  // Convert byte array to a string where each char is one byte value
+  const encodedText = String.fromCharCode(...utf8Bytes);
+
   const qr = qrcode(0, 'L'); 
   
   try {
-    // 日本語などの非ASCII文字を含むデータを追加する際は、
-    // エンコードモードを明示的に指定することが重要です。
-    // qrcode.jsはaddDataの第2引数でモードを指定できます。
-    // 'Byte'モードがUTF-8エンコーディングをサポートします。
-    // 詳細: https://github.com/kazuhikoaraki/qrcode-generator/blob/master/js/qrcode.js#L267
-    qr.addData(text, 'Byte'); // ここを修正
+    // Add the pre-encoded text in 'Byte' mode
+    qr.addData(encodedText, 'Byte'); 
     qr.make();
   } catch (e) {
     alert("QRコードの生成中にエラーが発生しました。\n入力内容が長すぎるか、サポートされていない文字が含まれている可能性があります。\nエラー: " + e.message);
