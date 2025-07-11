@@ -60,26 +60,26 @@
   <label for="output">📄 TextQR 出力（読み取り可能）：</label>
   <textarea id="output" title="こちらが完成した文字のみのQRコードです" readonly></textarea>
 
-  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-  <script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
 function generateQR() {
   const text = document.getElementById("url").value;
-  let chars = document.getElementById("char").value; // const から let に変更
+  let charsInput = document.getElementById("char").value; // 入力値を取得
 
-  // 絵文字修飾子（U+FE0F）を取り除く
-  chars = chars.replace(/\uFE0F/g, ''); 
+  // 入力された文字列を、サロゲートペアや絵文字シーケンスを考慮して配列に変換
+  // これにより、絵文字が1つの要素として扱われるようになる
+  const charsArray = Array.from(charsInput); 
 
-  // 絵文字を考慮した文字数カウント
-  const actualCharLength = [...chars].length; 
-  console.log("入力された文字 (修正後):", chars); // 修正後の文字を確認用に追加
-  console.log("認識された文字数 (修正後):", actualCharLength); // 修正後の文字数を確認用に追加
-
-  if (actualCharLength !== 2) { 
+  // 絵文字修飾子（U+FE0F）を取り除く処理は、Array.fromで対応できるため不要になることが多いですが、
+  // 念のため、特定の環境で問題が残る場合は残しておくことも検討できます。
+  // しかし、ここではArray.fromが正しく絵文字を分割することを期待します。
+  
+  if (charsArray.length !== 2) { 
     alert("2文字を入力してね！（例：⬛⬜ または 1と0）");
     return;
   }
   
-  const [black, white] = [...chars]; 
+  const [black, white] = charsArray; // 配列から2文字を取得
 
   const qr = qrcode(0, 'L');
   qr.addData(text);
@@ -104,8 +104,8 @@ function generateQR() {
     const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    const filename = prompt("ファイル名を入力してね！", "text_qr"); // ファイル名のプロンプトを改善
-    if (filename === null || filename.trim() === "") { // キャンセルまたは空文字の場合の処理
+    const filename = prompt("ファイル名を入力してね！", "text_qr");
+    if (filename === null || filename.trim() === "") {
         alert("ファイル名が入力されませんでした。保存を中止します。");
         return;
     }
@@ -114,6 +114,6 @@ function generateQR() {
     a.click();
     URL.revokeObjectURL(url);
   }
-  </script>
+</script>
 </body>
 </html>
