@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>TextQR</title>
+  <style>
+    body {
+      font-family: monospace;
+      background-color: #f4f4f4;
+      padding: 2em;
+    }
+    label {
+      display: block;
+      margin-top: 1em;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 100%;
+      font-size: 1em;
+      padding: 0.5em;
+      margin-bottom: 0.5em;
+    }
+    textarea {
+      width: 100%;
+      height: 20em;
+      font-family: monospace;
+      font-size: 12px;
+      line-height: 1;
+      letter-spacing: 0;
+      white-space: pre;
+      padding: 0.5em;
+      background-color: #fff;
+    }
+    button {
+      margin-top: 1em;
+      padding: 0.5em 1em;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>TextQR ジェネレーター</h1>
+
+  <label for="url">🔗 URL または テキスト入力：</label>
+  <input type="text" id="url" placeholder="https://example.com">
+
+  <label for="char">⬛⬜ に使う文字（2文字）：</label>
+  <input type="text" id="char" value="⬛⬜" maxlength="2">
+
+  <button onclick="generateQR()">✅ QR生成！</button>
+
+  <label for="output">📄 TextQR 出力（読み取り可能）：</label>
+  <textarea id="output" readonly></textarea>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+  <script>
+    function generateQR() {
+      const text = document.getElementById("url").value;
+      const chars = document.getElementById("char").value;
+      if (chars.length !== 2) {
+        alert("2文字を入力してね！（例：⬛⬜ または 1と0）");
+        return;
+      }
+      const [black, white] = chars.split("");
+      const qr = qrcode(0, 'L');
+      qr.addData(text);
+      qr.make();
+      const size = qr.getModuleCount();
+      let result = "";
+      for (let row = 0; row < size; row++) {
+        for (let col = 0; col < size; col++) {
+          result += qr.isDark(row, col) ? black : white;
+        }
+        result += "\n";
+      }
+      document.getElementById("output").value = result;
+    }
+  </script>
+</body>
+</html>
