@@ -62,43 +62,54 @@
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
   <script>
-    function generateQR() {
-      const text = document.getElementById("url").value;
-      const chars = document.getElementById("char").value;
-      if (chars.length !== 2) {
-        alert("2文字を入力してね！（例：⬛⬜ または 1と0）");
-        return;
-      }
-      const [black, white] = chars.split("");
-      const qr = qrcode(0, 'L');
-      qr.addData(text);
-      qr.make();
-      const size = qr.getModuleCount();
-      let result = "";
-      for (let row = 0; row < size; row++) {
-        for (let col = 0; col < size; col++) {
-          result += qr.isDark(row, col) ? black : white;
-        }
-        result += "\n";
-      }
-      document.getElementById("output").value = result;
-    }
+  function generateQR() {
+    const text = document.getElementById("url").value;
+    const chars = document.getElementById("char").value;
 
-    function exportTXT() {
-      const content = document.getElementById("output").value;
-      if (!content.trim()) {
-        alert("まずはQRを生成してね！");
-        return;
-      }
-      const blob = new Blob([content], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      const filename = confirm("ファイル名を入力してね！")
-      a.href = url;
-      a.download = filename + ".txt";
-      a.click();
-      URL.revokeObjectURL(url);
+    // 絵文字を考慮した文字数カウント
+    const actualCharLength = [...chars].length; 
+
+    if (actualCharLength !== 2) { // 修正点: actualCharLength を使用
+      alert("2文字を入力してね！（例：⬛⬜ または 1と0）");
+      return;
     }
+    
+    // 修正点: chars をスプレッド構文で分割して配列として扱う
+    const [black, white] = [...chars]; 
+
+    const qr = qrcode(0, 'L');
+    qr.addData(text);
+    qr.make();
+    const size = qr.getModuleCount();
+    let result = "";
+    for (let row = 0; row < size; row++) {
+      for (let col = 0; col < size; col++) {
+        result += qr.isDark(row, col) ? black : white;
+      }
+      result += "\n";
+    }
+    document.getElementById("output").value = result;
+  }
+
+  function exportTXT() {
+    const content = document.getElementById("output").value;
+    if (!content.trim()) {
+      alert("まずはQRを生成してね！");
+      return;
+    }
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const filename = prompt("ファイル名を入力してね！", "text_qr"); // ファイル名のプロンプトを改善
+    if (filename === null || filename.trim() === "") { // キャンセルまたは空文字の場合の処理
+        alert("ファイル名が入力されませんでした。保存を中止します。");
+        return;
+    }
+    a.href = url;
+    a.download = filename + ".txt";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
   </script>
 </body>
 </html>
