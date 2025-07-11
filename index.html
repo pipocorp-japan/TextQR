@@ -64,31 +64,39 @@
 <script>
 function generateQR() {
   const text = document.getElementById("url").value;
-  let charsInput = document.getElementById("char").value; // 入力値を取得
+  const charsInput = document.getElementById("char").value; 
 
-  // 入力された文字列を、サロゲートペアや絵文字シーケンスを考慮して配列に変換
-  // これにより、絵文字が1つの要素として扱われるようになる
-  const charsArray = Array.from(charsInput); 
+  const chars = Array.from(charsInput).slice(0, 2); 
 
-  // 絵文字修飾子（U+FE0F）を取り除く処理は、Array.fromで対応できるため不要になることが多いですが、
-  // 念のため、特定の環境で問題が残る場合は残しておくことも検討できます。
-  // しかし、ここではArray.fromが正しく絵文字を分割することを期待します。
-  
-  if (charsArray.length !== 2) { 
-    alert("2文字を入力してね！（例：⬛⬜ または 1と0）");
+  if (chars.length !== 2) { 
+    alert("「⬛⬜」のように、QRコードの素材に使う文字を正確に2つ入力してくださいね！");
     return;
   }
   
-  const [black, white] = charsArray; // 配列から2文字を取得
+  const [blackChar, whiteChar] = chars;
 
-  const qr = qrcode(0, 'L');
-  qr.addData(text);
-  qr.make();
+  // QRコードオブジェクトを初期化
+  // ここでバージョン0、誤り訂正レベルL（低）を設定
+  const qr = qrcode(0, 'L'); 
+  
+  try {
+    // 日本語などの非ASCII文字を含むデータを追加する際は、
+    // エンコードモードを明示的に指定することが重要です。
+    // qrcode.jsはaddDataの第2引数でモードを指定できます。
+    // 'Byte'モードがUTF-8エンコーディングをサポートします。
+    // 詳細: https://github.com/kazuhikoaraki/qrcode-generator/blob/master/js/qrcode.js#L267
+    qr.addData(text, 'Byte'); // ここを修正
+    qr.make();
+  } catch (e) {
+    alert("QRコードの生成中にエラーが発生しました。\n入力内容が長すぎるか、サポートされていない文字が含まれている可能性があります。\nエラー: " + e.message);
+    return;
+  }
+
   const size = qr.getModuleCount();
   let result = "";
   for (let row = 0; row < size; row++) {
     for (let col = 0; col < size; col++) {
-      result += qr.isDark(row, col) ? black : white;
+      result += qr.isDark(row, col) ? blackChar : whiteChar;
     }
     result += "\n";
   }
