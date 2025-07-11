@@ -68,6 +68,8 @@
 
     // 絵文字を考慮した文字数カウント
     const actualCharLength = [...chars].length; 
+    console.log("入力された文字:", chars); // 追加
+    console.log("認識された文字数:", actualCharLength); // 追加
 
     if (actualCharLength !== 2) { // 修正点: actualCharLength を使用
       alert("2文字を入力してね！（例：⬛⬜ または 1と0）");
